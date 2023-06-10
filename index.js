@@ -1,4 +1,4 @@
-require('dotenv').config(); // Add this line to load environment variables from .env file
+require('dotenv').config();
 
 const express = require('express');
 const { MongoClient, ServerApiVersion } = require('mongodb');
@@ -17,43 +17,44 @@ app.get('/', (req, res) => {
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.hjhfn1d.mongodb.net/?retryWrites=true&w=majority`;
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
     strict: true,
     deprecationErrors: true,
   },
+  connectTimeoutMS: 30000, // Adjust the timeout value as needed
 });
 
 async function run() {
   try {
-    // Connect the client to the server
     await client.connect();
 
-    const instructorsCollection = client.db("YogaDB").collection("instructors") 
-    const AllClassesCollection = client.db("YogaDB").collection("allClasses")
+    const instructorsCollection = client.db("YogaDB").collection("instructors");
+    const AllClassesCollection = client.db("YogaDB").collection("allClasses");
+    const ClassesCartCollection = client.db("YogaDB").collection("ClassesCart");
 
     app.get("/instructors", async (req, res) => {
-        const result = await instructorsCollection.find().toArray()
-        res.send(result)
-      })
+      const result = await instructorsCollection.find().toArray();
+      res.send(result);
+    });
+
     app.get("/allClasses", async (req, res) => {
-        const result = await AllClassesCollection.find().toArray()
-        res.send(result)
-      })
+      const result = await AllClassesCollection.find().toArray();
+      res.send(result);
+    });
 
+    app.post('/ClassesCart', async (req, res) => {
+      const classItems = req.body;
+      const result = await ClassesCartCollection.insertOne(classItems);
+      res.send(result);
+    });
 
-
-
-
-    // Send a ping to confirm a successful connection
     await client.db('admin').command({ ping: 1 });
     console.log('Pinged your deployment. You successfully connected to MongoDB!');
   } catch (error) {
     console.error('Failed to connect to MongoDB:', error);
   } finally {
-    // Ensure that the client will close when you finish/error
     // await client.close();
   }
 }
