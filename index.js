@@ -48,6 +48,7 @@ async function run() {
     await client.connect();
 
     const usersCollection = client.db('YogaDB').collection('users');
+    const addClassCollection = client.db('YogaDB').collection('addClass');
     const instructorsCollection = client.db('YogaDB').collection('instructors');
     const AllClassesCollection = client.db('YogaDB').collection('allClasses');
     const ClassesCartCollection = client.db('YogaDB').collection('ClassesCart');
@@ -68,10 +69,10 @@ async function run() {
       }
     });
 
-    // app.get('/users',  async (req, res) => {
-    //   const result = await usersCollection.find().toArray();
-    //   res.send(result);
-    // });
+    app.get('/users',  async (req, res) => {
+      const result = await usersCollection.find().toArray();
+      res.send(result);
+    });
 
     app.get('/instructors', async (req, res) => {
       const result = await instructorsCollection.find().toArray();
@@ -204,7 +205,16 @@ async function run() {
       res.send(result);
     });
 
+    app.post('/addClass', async (req, res) => {
+      const classItems = req.body;
+      const result = await addClassCollection.insertOne(classItems);
+      res.send(result);
+    });
 
+    app.get('/addClass', async (req, res) => {
+      const result = await addClassCollection.find().toArray();
+      res.send(result);
+    });
 
     await client.db('admin').command({ ping: 1 });
     console.log('Pinged your deployment. You successfully connected to MongoDB!');
