@@ -8,7 +8,13 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 // MIDDLEWARE
-app.use(cors());
+const corsOptions = {
+  origin: '*',
+  Credentials: true,
+  optionSuccessStatus: 200,
+}
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 const verifyAdmin = async (req, res, next) => {
@@ -45,13 +51,15 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    await client.connect();
+    // await client.connect();
 
     const usersCollection = client.db('YogaDB').collection('users');
     const addClassCollection = client.db('YogaDB').collection('addClass');
     const instructorsCollection = client.db('YogaDB').collection('instructors');
     const AllClassesCollection = client.db('YogaDB').collection('allClasses');
-    const ClassesCartCollection = client.db('YogaDB').collection('ClassesCart');
+    const ClassesCartCollection = client.db('YogaDB').collection('ClassesCart'); 
+    const paymentsCollection = client.db('YogaDB').collection('payments');
+       
 
     app.post('/users', async (req, res) => {
       try {
@@ -69,7 +77,7 @@ async function run() {
       }
     });
 
-    app.get('/users',  async (req, res) => {
+    app.get('/users', async (req, res) => {
       const result = await usersCollection.find().toArray();
       res.send(result);
     });
@@ -102,7 +110,7 @@ async function run() {
       res.json(result);
     });
 
-    
+
     app.post('/create-payment', async (req, res) => {
       try {
         const { price } = req.body;
@@ -131,12 +139,29 @@ async function run() {
       }
     });
 
+//     app.post("/payments", async (req, res) => {
+//   const payment = req.body;
+//   try {
+//     const result = await paymentsCollection.insertOne(payment);
+//     res.send(result);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send("Failed to save payment to the server");
+//   }
+// });
+app.post("/payment", async (req, res) => {
+  const payment = req.body;
+  const insertResult = await paymentsCollection.insertOne(payment);
+  
+  res.send(insertResult)
+});
+
 
 
     app.get('/users/:email', async (req, res) => {
       const email = req.params.email;
       const role = req.query.role
-      
+
       if (!role && !email) {
         const result = await usersCollection.find().toArray()
         res.send(result)
@@ -152,8 +177,8 @@ async function run() {
         const result = await usersCollection.findOne(query)
         res.send(result)
       }
-      if(role && email){
-        const query = {role:role,email:email}
+      if (role && email) {
+        const query = { role: role, email: email }
         const result = await usersCollection.findOne(query)
         res.send(result)
       }
