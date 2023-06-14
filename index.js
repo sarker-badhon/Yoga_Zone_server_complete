@@ -139,16 +139,7 @@ async function run() {
       }
     });
 
-//     app.post("/payments", async (req, res) => {
-//   const payment = req.body;
-//   try {
-//     const result = await paymentsCollection.insertOne(payment);
-//     res.send(result);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send("Failed to save payment to the server");
-//   }
-// });
+
 app.post("/payment", async (req, res) => {
   const payment = req.body;
   const insertResult = await paymentsCollection.insertOne(payment);
