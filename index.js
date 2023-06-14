@@ -57,9 +57,9 @@ async function run() {
     const addClassCollection = client.db('YogaDB').collection('addClass');
     const instructorsCollection = client.db('YogaDB').collection('instructors');
     const AllClassesCollection = client.db('YogaDB').collection('allClasses');
-    const ClassesCartCollection = client.db('YogaDB').collection('ClassesCart'); 
+    const ClassesCartCollection = client.db('YogaDB').collection('ClassesCart');
     const paymentsCollection = client.db('YogaDB').collection('payments');
-       
+
 
     app.post('/users', async (req, res) => {
       try {
@@ -140,13 +140,17 @@ async function run() {
     });
 
 
-app.post("/payment", async (req, res) => {
-  const payment = req.body;
-  const insertResult = await paymentsCollection.insertOne(payment);
-  
-  res.send(insertResult)
-});
+    app.post("/payment", async (req, res) => {
+      const payment = req.body;
+      const insertResult = await paymentsCollection.insertOne(payment);
 
+      res.send(insertResult)
+    });
+
+    app.get('/payments', async (req, res) => {
+      const result = await paymentsCollection.find().toArray();
+      res.send(result);
+    });
 
 
     app.get('/users/:email', async (req, res) => {
